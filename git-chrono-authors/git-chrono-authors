@@ -1,0 +1,120 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# This is an alternative version of git-authors script created 
+# by Stanislav Pankevich. The pull request with this modified version is created:
+# https://github.com/jgehrcke/git-authors/pull/1
+#
+# The following is the original header (the LICENSE file is preserved):
+# "
+# See LICENSE file for licensing details. 
+# Author: Jan-Philip Gehrcke -- http://gehrcke.de
+# Contact: jgehrcke@googlemail.com
+# "
+
+"""
+List the authors of a git repository sorted by the time of their first
+contribution (specifically, by the git data field '%at', also known as
+the "author date").
+
+Stdin is expected to be the output of the following command:
+
+git log --encoding=utf-8 --full-history --reverse "--format=format:%at;%an;%ae"
+
+Write a formatted list of authors to stdout, using UTF-8 encoding and with
+lines separated by a single \n character.
+
+Distinguished by their name only (specifically, by the git data field '%an').
+
+Relevant resources:
+    - http://git-scm.com/docs/git-log
+    - http://stackoverflow.com/a/11857467/145400
+"""
+
+
+import io
+import os
+import sys
+from datetime import datetime
+from dateutil import relativedelta
+from collections import OrderedDict
+
+# Python: Difference of 2 datetimes in months [duplicate]
+# http://stackoverflow.com/a/7015723/598057
+def months_between(date1,date2):
+    if date1>date2:
+        date1,date2=date2,date1
+    m1=date1.year*12+date1.month
+    m2=date2.year*12+date2.month
+    months=m2-m1
+    if date1.day>date2.day:
+        months-=1
+    elif date1.day==date2.day:
+        seconds1=date1.hour*3600+date1.minute+date1.second
+        seconds2=date2.hour*3600+date2.minute+date2.second
+        if seconds1>seconds2:
+            months-=1
+    return months
+
+if sys.version_info[0] == 3 and sys.version_info < (3, 4):
+    sys.exit("Error: Python 3.4 or newer is required.")
+if sys.version_info < (2, 7):
+    sys.exit("Error: Python 2.7 or newer is required.")
+
+
+usage = ('$ git log --encoding=utf-8 --full-history --reverse ' 
+    '"--format=format:%at;%an;%ae" | '+ os.path.basename(sys.argv[0]))
+
+
+if sys.stdin.isatty():
+    sys.exit(("Error: this program expects a pipe attached to standard input. "
+        "This looks like a terminal. Recommended usage: \n\n%s" % usage))
+
+
+# Take precise control of the stdin byte stream interpretation, as well as of
+# the byte stream written to stdout, on Python 2 as well as on Python 3, and on
+# Windows as well as on Linux. UTF-8-encoded input with invalid byte sequences
+# and "\n" line separation is expected on stdin. Valid UTF-8 data will be
+# written to stdout; with "\n" line separation (w/o universal newline support).
+kwargs = {"errors": "replace", "encoding": "utf-8", "newline": "\n"}
+stdin = io.open(sys.stdin.fileno(), **kwargs)
+stdout = io.open(sys.stdout.fileno(), mode="w", **kwargs)
+
+
+authors = OrderedDict()
+
+for line in stdin:
+    timestamp, name, email = line.strip().split(";")
+    
+    if not name in authors:
+        authors[name] = { 
+            'email': email, 
+            'start_date': timestamp, 
+            'end_date': timestamp,
+            'count': 1
+        }
+    else:
+        authors[name]['count'] = authors[name]['count'] + 1
+
+        if authors[name]['end_date'] < timestamp:
+            authors[name]['end_date'] = timestamp 
+
+for i, (name, value) in enumerate(authors.items()):
+    start_date = datetime.fromtimestamp(float(value['start_date']))
+    end_date   = datetime.fromtimestamp(float(value['end_date']))
+
+    start_date_str = start_date.strftime("%y.%m.%d")
+
+    today_date = datetime.now()
+    is_present = months_between(today_date, end_date) <= 1
+
+    end_date_str = end_date.strftime("%y.%m.%d") if not is_present else 'Present '
+
+    months = str(months_between(end_date, start_date)).rjust(2, ' ')
+
+    index = str(i + 1).rjust(4, ' ')
+    commits = str(value['count']).rjust(5, ' ')
+
+    stdout.write("%s [%s - %s => %s months] %s commits by %s <%s>\n" % (index, start_date_str, end_date_str, months, commits, name, value['email']))
+
+
