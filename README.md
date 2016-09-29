@@ -1,6 +1,6 @@
 # Git Contribution Stats
 
-Use these scripts to see the Github contribution stats. Currently there are two ways of stats:
+Use these scripts to see the Github contribution stats. Currently there are two ways of seeing stats:
 
 1. Top committers
 2. Github contribution history 
@@ -70,7 +70,7 @@ $ GIT_PROJECT_PATH=~/Projects/OCLint make history
   27 [16.06.06 - 16.06.30 =>  0 months]     3 commits by Juan Pablo Civile <jpcivile@monits.com>
 ```
 
-## Using Git .mailmap to filter out unique contributors
+## Using Git's .mailmap to filter out unique contributors
 
 Sometimes people contribute from different machines, using different SSH keys so the same person may appear multiple times. There is `.mailmap` file that can be created for aliases:
 
@@ -78,7 +78,7 @@ Sometimes people contribute from different machines, using different SSH keys so
 Stanislav Pankevich <s.pankevich@gmail.com>  Stanislav Pankevich <s.pankevich@someothermail.com> 
 ```
 
-If you have a big project and want to simplify the task of creating a `.mailmap` file run the following command that will create a boilerplate for you:
+If you have a big project and want to simplify the task of creating a `.mailmap` file run the following command taken from [1] that will create a boilerplate for you:
 
 ```
 git shortlog -se |   awk -F'\t' '{print $2,$3,$2,$3}' |   sort > .mailmap
@@ -94,6 +94,7 @@ Stanislaw Pankevich <s.pankevich@gmail.com>  Stanislaw Pankevich <s.pankevich@gm
 See the good articles about `.mailmap`:
 
 [1] [Git Shortlog and Mailmap](https://shane.io/2011/10/07/git-shortlog-and-mailmap.html)
+
 [2] [Using mailmap to fix authors list in git](https://stacktoheap.com/blog/2013/01/06/using-mailmap-to-fix-authors-list-in-git/)
 
 ## Credits
