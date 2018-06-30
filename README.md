@@ -4,6 +4,7 @@ Use these scripts to see the Github contribution stats. Currently there are two 
 
 1. Top committers
 2. Github contribution history 
+3. Most changed files
 
 ## Installation
 
@@ -68,6 +69,12 @@ $ GIT_PROJECT_PATH=~/Projects/OCLint make history
   25 [16.03.16 - 16.03.16 =>  0 months]     1 commits by Eugene Dymov <dymv@yandex-team.ru>
   26 [16.06.06 - 16.06.06 =>  0 months]     1 commits by living.Zhang <LivingcentZhang@gmail.com>
   27 [16.06.06 - 16.06.30 =>  0 months]     3 commits by Juan Pablo Civile <jpcivile@monits.com>
+```
+
+## Most changed files
+
+```
+GIT_PROJECT_PATH=/opt/mull make most_changed_files 
 ```
 
 ## Using Git's .mailmap to filter out unique contributors
