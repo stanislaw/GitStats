@@ -35,4 +35,5 @@ generate-history:
         ./git-chrono-authors/git-chrono-authors > \
         history.txt
 
-
+most_changed_files: ## Most changed files.
+	git --git-dir $(GIT_PROJECT_PATH)/.git log -n 1000 --format=format: --name-only | egrep -v '^$$' | sort | uniq -c | sort -r | head -100
