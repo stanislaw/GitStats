@@ -1,6 +1,6 @@
-# Git Contribution Stats
+# Git Stats
 
-Use these scripts to see the Github contribution stats. Currently there are two ways of seeing stats:
+Use these scripts to see the Github stats. Currently there are two ways of seeing stats:
 
 1. Top committers
 2. Github contribution history 
